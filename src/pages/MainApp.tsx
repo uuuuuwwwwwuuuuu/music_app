@@ -1,12 +1,24 @@
-import { SafeAreaView, View, StyleSheet, Text, Pressable } from "react-native"
+import { SafeAreaView, View, StyleSheet, Text, Pressable, Image } from "react-native"
 import { useAppSelector } from "../hooks";
 
 import Logo from '../components/logo';
-import { SmallNote } from "../components/notes";
-import { BlurView } from "expo-blur";
+import React, { useEffect, useState } from "react";
+import { Gyroscope } from "expo-sensors";
 
 export default function MainApp() {
     const {colors, fonts} = useAppSelector(state => state.colors);
+    const [gyroData, setGyroData] = useState({x: 0, y: 0});
+    const gyroIndex = 1.5
+
+    useEffect(() => {
+        const subscription = Gyroscope.addListener(data => {
+            setGyroData(data)
+        })
+
+        return () => {
+            subscription.remove()
+        }
+    }, []);
 
     const s = StyleSheet.create({
         container: {
@@ -22,7 +34,7 @@ export default function MainApp() {
             justifyContent: 'center',
             alignItems: 'center',
             left: 2,
-            
+            zIndex: 2
         },
         buttonsWrapper: {
             position: 'absolute',
@@ -55,13 +67,41 @@ export default function MainApp() {
         },
         note1: {
             position: 'absolute',
-            top: 55,
-            left: 30,
-            transform: [{scale: 0.75}, {rotate: '-17deg'}],
-            
+            zIndex: 1,
+            transform: [{scale: 1.2}, {rotate: '-17deg'}, {translateX: gyroData.x * gyroIndex}, {translateY: gyroData.y * gyroIndex}],
+            top: 85,
+            left: 45,
+            width: 83,
+            height: 133,
+        },
+        note2: {
+            position: 'absolute',
+            zIndex: 1,
+            transform: [{scale: 1.3}, {rotate: '7deg'}, {translateX: gyroData.x * gyroIndex}, {translateY: gyroData.y * -gyroIndex}],
+            top: 45,
+            right: -45,
+            width: 189,
+            height: 222
+        },
+        note3: {
+            position: 'absolute',
+            zIndex: 1,
+            transform: [{scale: 1}, {rotate: '-48deg'}, {translateX: gyroData.x * -gyroIndex}, {translateY: gyroData.y * gyroIndex}],
+            bottom: 310,
+            left: -45,
+            width: 189,
+            height: 222
+        },
+        note4: {
+            position: 'absolute',
+            zIndex: 3,
+            transform: [{scale: 2.2}, {rotate: '37deg'}, {translateX: gyroData.x * -gyroIndex}, {translateY: gyroData.y * -gyroIndex}],
+            bottom: 250,
+            right: 100,
+            width: 83,
+            height: 133,
         }
     });
-
 
     return (
         <View style={s.container}>
@@ -77,7 +117,10 @@ export default function MainApp() {
                         <Text style={s.text}>Зарегистироваться</Text>
                     </Pressable>
                 </View>
-                <SmallNote style={s.note1} />
+                <Image source={require('../../assets/SmallNote.png')} blurRadius={8} style={s.note1} />
+                <Image source={require('../../assets/BigNote.png')} blurRadius={5} style={s.note2} />
+                <Image source={require('../../assets/BigNote.png')} blurRadius={3} style={s.note3} />
+                <Image source={require('../../assets/SmallNote.png')} blurRadius={5} style={s.note4} />
             </SafeAreaView>
         </View>
     )

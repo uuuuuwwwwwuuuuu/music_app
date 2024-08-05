@@ -5,6 +5,7 @@ import store from "./src/store/store";
 import MainApp from "./src/pages/MainApp";
 import * as Font from 'expo-font';
 import { useEffect, useState } from "react";
+import React from "react";
 
 const fonts = () => Font.loadAsync({
     'inria': require('./assets/fonts/InriaBold.ttf'),
