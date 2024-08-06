@@ -1,5 +1,9 @@
-import { SafeAreaView, View, StyleSheet, Text, Pressable, Image } from "react-native"
+import { SafeAreaView, View, StyleSheet, Text, TouchableWithoutFeedback, Image } from "react-native"
 import { useAppSelector } from "../hooks";
+
+import Animated, {
+    withSpring, withTiming, useSharedValue, useAnimatedStyle
+} from "react-native-reanimated";
 
 import Logo from '../components/logo';
 import React, { useEffect, useState } from "react";
@@ -8,7 +12,9 @@ import { Gyroscope } from "expo-sensors";
 export default function MainApp() {
     const {colors, fonts} = useAppSelector(state => state.colors);
     const [gyroData, setGyroData] = useState({x: 0, y: 0});
-    const gyroIndex = 1.5
+    const gyroIndex = 1.5;
+
+    const [regState, setRegState] = useState<'idle' | 'reg' | 'auth'>('idle')
 
     useEffect(() => {
         const subscription = Gyroscope.addListener(data => {
@@ -19,6 +25,18 @@ export default function MainApp() {
             subscription.remove()
         }
     }, []);
+
+    const OPACITY = useSharedValue(1);
+
+    const AButtonsWrapper = useAnimatedStyle(() => ({
+        opacity: withTiming(OPACITY.value, {duration: 1000})
+    }))
+
+    useEffect(() => {
+        if (regState !== 'idle') {
+            OPACITY.value = 0
+        }
+    }, [regState]);
 
     const s = StyleSheet.create({
         container: {
@@ -109,14 +127,18 @@ export default function MainApp() {
                 <View style={s.logoWrapper}>
                     <Logo />
                 </View>
-                <View style={s.buttonsWrapper}>
-                    <Pressable style={s.accentBtn}>
-                        <Text style={s.text}>Войти</Text>
-                    </Pressable>
-                    <Pressable style={s.simpleBtn}>
-                        <Text style={s.text}>Зарегистироваться</Text>
-                    </Pressable>
-                </View>
+                <Animated.View style={[s.buttonsWrapper, AButtonsWrapper]}>
+                    <TouchableWithoutFeedback onPress={() => setRegState('auth')} >
+                        <View style={s.accentBtn}>
+                            <Text style={s.text}>Войти</Text>
+                        </View>
+                    </TouchableWithoutFeedback>
+                    <TouchableWithoutFeedback >
+                        <View style={s.simpleBtn}>
+                            <Text style={s.text}>Зарегистироваться</Text>                        
+                        </View>
+                    </TouchableWithoutFeedback>
+                </Animated.View>
                 <Image source={require('../../assets/SmallNote.png')} blurRadius={8} style={s.note1} />
                 <Image source={require('../../assets/BigNote.png')} blurRadius={5} style={s.note2} />
                 <Image source={require('../../assets/BigNote.png')} blurRadius={3} style={s.note3} />
