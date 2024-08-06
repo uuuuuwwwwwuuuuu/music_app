@@ -32,13 +32,22 @@ export default function RegPage() {
         opacity: useSharedValue(1)
     }
 
+    const LOGO = {
+        top: useSharedValue(45)
+    }
+
+    const ALogo = useAnimatedStyle(() => ({
+        top: withTiming(LOGO.top.value, {duration: 700})
+    }))
+
     const AButtonsWrapper = useAnimatedStyle(() => ({
-        opacity: withTiming(BUTTONS.opacity.value, {duration: 1000})
+        opacity: withTiming(BUTTONS.opacity.value, {duration: 500})
     }))
 
     useEffect(() => {
         if (regState !== 'idle') {
-            BUTTONS.opacity.value = 0
+            BUTTONS.opacity.value = 0;
+            LOGO.top.value = 100
         }
     }, [regState]);
 
@@ -48,8 +57,8 @@ export default function RegPage() {
         logoWrapper: {
             justifyContent: 'center',
             alignItems: 'center',
-            left: 2,
-            zIndex: 2
+            zIndex: 2,
+            position: 'absolute'
         },
         buttonsWrapper: {
             position: 'absolute',
@@ -120,9 +129,9 @@ export default function RegPage() {
 
     return (
         <>
-            <View style={s.logoWrapper}>
+            <Animated.View style={[s.logoWrapper, ALogo]}>
                 <Logo />
-            </View>
+            </Animated.View>
             <Animated.View style={[s.buttonsWrapper, AButtonsWrapper]}>
                 <TouchableWithoutFeedback onPress={() => setRegState('auth')} >
                     <View style={s.accentBtn}>
